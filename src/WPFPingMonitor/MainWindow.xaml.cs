@@ -14,6 +14,7 @@ namespace WPFPingMonitor
         {
             InitializeComponent();
 
+            // create a timer to check for new data every 10 milliseconds
             DispatcherTimer plotTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(10) };
             plotTimer.Tick += PlotNow;
             plotTimer.Start();
@@ -21,21 +22,26 @@ namespace WPFPingMonitor
 
         void PlotNow(object sender, EventArgs e)
         {
+            PingResult[] successfulPings = myPinger.PingResults.Where(x => x.Success).ToArray();
+
             // only update the plot if new data is available
-            if (myPinger.PingResults.Count == 0)
+            if (successfulPings.Length == 0)
                 return;
-            if (myPinger.PingResults.Last().Timestamp == lastUpdate)
+            if (successfulPings.Last().Timestamp == lastUpdate)
                 return;
             lastUpdate = myPinger.PingResults.Last().Timestamp;
 
-            // get the data we wish to plot as double arrays
-            PingResult[] successfulPings = myPinger.PingResults.Where(x => x.Success).ToArray();
+            // clear any old data that may have been plotted
+            wpfPlot1.plt.Clear();
+
+            // transform data to double arrays and plot it as a scatter plot
             double[] xs = successfulPings.Select(x => x.OADate).ToArray();
             double[] ys = successfulPings.Select(x => x.Latency).ToArray();
-
-            // display latencies as a scatter plot
-            wpfPlot1.plt.Clear();
             wpfPlot1.plt.PlotScatter(xs, ys);
+
+            // alternatively you can represent pings as a bar graph
+            //double barWidth = .5 / (24 * 60 * 60); // units are fraction of a day
+            //wpfPlot1.plt.PlotBar(xs, ys, barWidth: barWidth);
 
             // decorate the plot, and disable the mouse since axis limits are set manually
             wpfPlot1.plt.Title("Web Server Latency");
