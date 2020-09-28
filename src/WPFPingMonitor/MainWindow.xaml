@@ -6,7 +6,7 @@
         
         xmlns:local="clr-namespace:WPFPingMonitor"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="850">
+        Title="Pinger using ScottPlot" Height="450" Width="850">
 
     <DockPanel>
         <StackPanel Orientation="Horizontal" DockPanel.Dock="Top"/>
